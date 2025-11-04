@@ -1,0 +1,13 @@
+delta==0.4.2
+delta_spark==4.0.0
+fastf1==3.6.1
+fastparquet==2024.11.0
+feature_engine==1.9.3
+matplotlib==3.10.7
+numpy==2.3.4
+pandas==2.3.3
+pyspark==4.0.1
+rich==14.2.0
+scikit_learn==1.7.2
+seaborn==0.13.2
+tqdm==4.67.1

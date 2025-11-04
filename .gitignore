@@ -1,0 +1,5 @@
+*.parquet
+_delta_log
+*.crc
+*.csv
+__pycache__
