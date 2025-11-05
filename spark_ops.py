@@ -29,8 +29,9 @@ def create_view_from_path(path, spark):
     df.createOrReplaceTempView(table)
 
 
-def create_table(table, spark):
-    query = read_query(f"{table}.sql")
+def create_table(query, spark):
+    table = query.split("/")[-1].split(".")[0]
+    query = read_query(query)
     df = spark.sql(query)
     (df.coalesce(1)
        .write
@@ -39,14 +40,16 @@ def create_table(table, spark):
        .option("overwriteSchema", "true")
        .save(f"data/silver/{table}"))
     
-
+    tableDelta = DeltaTable.forPath(spark, f"data/silver/{table}")
+    tableDelta.vacuum()
+    
 
 class IngestorFS:
     
-    def __init__(self, table, spark):
-        self.table = table
+    def __init__(self, query, spark):
+        self.table = query.split("/")[-1].split(".")[0]
         self.spark = spark
-        self.query = read_query(f"{table}.sql")
+        self.query = read_query(query)
 
         
     def load(self, date):

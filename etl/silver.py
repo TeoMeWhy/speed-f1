@@ -1,15 +1,18 @@
 # %%
 import argparse
-import spark_ops 
+import sys
+
+sys.path.append(".")
+import spark_ops
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--table", default="", type=str)
+    parser.add_argument("--query", default="", type=str)
     args = parser.parse_args()
-    table = args.table
+    query = args.query
     
-    if table == "":
+    if query == "":
         return
     
     spark = spark_ops.new_spark_sesion()
@@ -20,9 +23,9 @@ def main():
         spark_ops.create_view_from_path("data/silver/champions", spark)
         
     except Exception:
-        spark_ops.create_table("champions", spark)
+        spark_ops.create_table("etl/champions.sql", spark)
         
-    spark_ops.create_table(table, spark)
+    spark_ops.create_table(query, spark)
 
 
 if __name__ == "__main__":

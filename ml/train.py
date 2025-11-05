@@ -35,7 +35,7 @@ mlflow.set_experiment(experiment_id= MLFLOW_EXPERIMENT_ID)
 # %%
 sys.path.append("..")
 
-import spark_ops
+import spark_ops as spark_ops
 
 # %%
 
