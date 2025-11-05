@@ -3,3 +3,4 @@ _delta_log
 *.crc
 *.csv
 __pycache__
+.env

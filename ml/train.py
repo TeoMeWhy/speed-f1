@@ -1,6 +1,8 @@
 # %%
 
 import sys
+import os
+
 import pandas as pd
 import numpy as np
 
@@ -13,6 +15,24 @@ from sklearn import pipeline
 from sklearn import ensemble
 from sklearn import metrics
 
+import mlflow
+import dotenv
+
+dotenv.load_dotenv('../.env')
+
+MLFLOW_SERVER = os.getenv("MLFLOW_SERVER")
+MLFLOW_EXPERIMENT_ID = os.getenv("MLFLOW_EXPERIMENT_ID")
+
+print(MLFLOW_SERVER)
+print(MLFLOW_EXPERIMENT_ID)
+
+#%%
+
+mlflow.set_tracking_uri(MLFLOW_SERVER)
+mlflow.set_experiment(experiment_id= MLFLOW_EXPERIMENT_ID)
+
+
+# %%
 sys.path.append("..")
 
 import spark_ops
@@ -143,55 +163,48 @@ model = pipeline.Pipeline(
 
 # %%
 
-model.fit(X_train, y_train)
+with mlflow.start_run():
+    
+    mlflow.sklearn.autolog()
 
-# %%
+    model.fit(X_train, y_train)
 
-y_pred_train = model.predict(X_train)
-y_prob_train = model.predict_proba(X_train)
+    y_pred_train = model.predict(X_train)
+    y_prob_train = model.predict_proba(X_train)
 
-acc_train = metrics.accuracy_score(y_train, y_pred_train)
-auc_train = metrics.roc_auc_score(y_train, y_prob_train[:,1])
+    acc_train = metrics.accuracy_score(y_train, y_pred_train)
+    auc_train = metrics.roc_auc_score(y_train, y_prob_train[:,1])
 
-print("ACC Train :",acc_train)
-print("AUC Train :",auc_train)
+    y_test = df_sample_test[target]
+    X_test = df_sample_test[features]
 
-# %%
+    y_pred_test = model.predict(X_test)
+    y_prob_test = model.predict_proba(X_test)
 
-y_test = df_sample_test[target]
-X_test = df_sample_test[features]
+    acc_test = metrics.accuracy_score(y_test, y_pred_test)
+    auc_test = metrics.roc_auc_score(y_test, y_prob_test[:,1])
 
-y_pred_test = model.predict(X_test)
-y_prob_test = model.predict_proba(X_test)
+    y_oot = df_oot[target]
+    X_oot = df_oot[features]
 
-acc_test = metrics.accuracy_score(y_test, y_pred_test)
-auc_test = metrics.roc_auc_score(y_test, y_prob_test[:,1])
+    y_pred_oot = model.predict(X_oot)
+    y_prob_oot = model.predict_proba(X_oot)
 
-print("ACC test:",acc_test)
-print("AUC test:",auc_test)
-
-# %%
-
-y_oot = df_oot[target]
-X_oot = df_oot[features]
-
-y_pred_oot = model.predict(X_oot)
-y_prob_oot = model.predict_proba(X_oot)
-
-acc_oot = metrics.accuracy_score(y_oot, y_pred_oot)
-auc_oot = metrics.roc_auc_score(y_oot, y_prob_oot[:,1])
-
-print("ACC OOT:",acc_oot)
-print("AUC OOT:",auc_oot)
-
-# %%
-
-columns = model[:-1].transform(X_train.head(1)).columns.tolist()
-
-feature_importance = pd.Series( model[-1].feature_importances_, index=columns)
-feature_importance = feature_importance.sort_values(ascending=False)
-feature_importance = feature_importance[feature_importance > 0]
-feature_importance
+    acc_oot = metrics.accuracy_score(y_oot, y_pred_oot)
+    auc_oot = metrics.roc_auc_score(y_oot, y_prob_oot[:,1])
+    
+    mlflow.log_metrics({
+        "auc_train":auc_train,
+        "auc_test":auc_test,
+        "acc_oot":acc_oot,
+    })
+    
+    
+    columns = model[:-1].transform(X_train.head(1)).columns.tolist()
+    feature_importance = pd.Series( model[-1].feature_importances_, index=columns)
+    feature_importance = feature_importance.sort_values(ascending=False)
+    feature_importance = feature_importance[feature_importance > 0]
+    feature_importance
 
 # %%
 
