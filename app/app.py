@@ -52,14 +52,53 @@ def show_data(df):
 st.set_page_config(
     page_title="Speed F1",
     page_icon=":racing_car:",
+    layout='wide',
 )
 
-st.markdown("# Speed F1\n\n## Boas vindas!")
-st.markdown("Coleta, procsamento e criação de aplicações de dados da F1")
-st.markdown("### Predição de vitória no campeonato")
+st.markdown("""
+# Speed F1
+"""
+)
+
+t1, t2 = st.columns(2)
+
+t1.markdown("""
+## Boas vindas!
+
+Projeto de coleta, procesamento e criação de aplicações de dados da F1 realizado ao vivo.
+
+[:link: Gravação disponível no YouTube](https://www.youtube.com/playlist?list=PLvlkVRRKOYFRha5ExLDyf7jbOVII55JRH)
+
+[:link: Repositório completo do projeto](https://github.com/TeoMeWhy/speed-f1).
+
+## Objetivo
+            
+Modelo que atribui probabilidade para cada piloto ser campeão mundial.
+
+
+""")
+
+t2.markdown("""
+
+## Etapas
+
+- Coleta de dados de grande prêmios e sprints de 1990 a 2025;
+- Processamento em Apache Spark para consolidação;
+- Criação de Feature Store para piloto ao final de cada corrida (GP e Sprint);
+- Treino do modelo de ML com dados entre 1990 a 2023;
+- Teste do modelo em 2024;
+- Aplicação do modelo no campeonato de 2025;
+
+""")
 
 
 df_champ = get_data()
+
+names_default = (df_champ[df_champ["YearRound"]==df_champ["YearRound"].max()]
+                        .sort_values(by='predict',ascending=False)['FullName']
+                        .head(3)
+                        .tolist()
+                        )
 
 if st.checkbox("Mostrar dados"):
     show_data(df_champ)
@@ -70,7 +109,7 @@ year = col1.number_input(label="Ano Temporada",
                        max_value=df_champ["dtYear"].max(),
                        value=df_champ["dtYear"].max())
 
-names = col2.multiselect(label="Pilotos", options=df_champ['FullName'].unique())
+names = col2.multiselect(label="Pilotos", options=df_champ['FullName'].unique(), default=names_default)
 
 
 df = df_champ[df_champ['dtYear']==year]
