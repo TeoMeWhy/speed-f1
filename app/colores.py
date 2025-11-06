@@ -1,5 +1,7 @@
 # %%
 
+import pandas as pd
+
 ## Código mágico do @dunossauro (pergunte a ele)
 def saturar(valor, minimo=0, maximo=255):
     return max(minimo, min(maximo, valor))
@@ -23,8 +25,14 @@ def change_color(row):
     return row["TeamColor"]
 
 
-def get_colors(df):
-    df = df.groupby("FullName")["TeamColor"].max().reset_index()
+def get_colors(df:pd.DataFrame):
+    
+    if df["TeamColor"].isna().sum() > 0:
+        return None
+    
+    df = (df.groupby("FullName")["TeamColor"]
+            .max()
+            .reset_index())
     df['unit'] = 1
     df['color_rate'] = df.groupby("TeamColor")['unit'].cumsum()
     return df.apply(lambda row: change_color(row), axis=1).tolist()

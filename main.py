@@ -50,7 +50,7 @@ def run_gold(spark):
     spark_ops.create_view_from_path("data/silver/fs_drivers",spark)
     
     print("Criando camada gold...")
-    make_prediction_champ("f1_champion", '2025-01-01','2026-01-01', spark)
+    make_prediction_champ("f1_champion", '2000-01-01','2026-01-01', spark)
     
     print("Camada gold criada.")
     

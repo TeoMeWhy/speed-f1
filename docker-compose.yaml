@@ -9,3 +9,15 @@ services:
     container_name: etl
     volumes:
       - ./data:/app/data
+
+  f1_app:
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+    container_name: f1_app
+    env_file:
+      - .env
+    volumes:
+      - ./data:/project/data
+    ports:
+      - 8502:8501

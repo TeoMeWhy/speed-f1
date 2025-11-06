@@ -12,9 +12,7 @@ sys.path.append("..")
 
 import spark_ops as spark_ops
 
-
-
-@st.cache_resource()
+@st.cache_resource(ttl=60*10)
 def get_data():
     spark = spark_ops.new_spark_sesion()
     spark_ops.create_view_from_path("../data/gold/champ_prediction", spark)
@@ -31,9 +29,9 @@ def show_data(df):
         "tempRoundNumber": st.column_config.NumberColumn("Rodada",help="Rodada do campeonato"),
         "dtRef": st.column_config.TextColumn("Data Predição",help="Data em que a predição ocorreu, pós corrida. Seja sprint ou grande prêmio"),
         "FullName": st.column_config.TextColumn("Piloto",help="Nome do Piloto"),
-        # "DriverId": st.column_config.TextColumn("ID Piloto",help="Identificação do piloto"),
+        "DriverId": st.column_config.TextColumn("ID Piloto",help="Identificação do piloto"),
         "TeamName": st.column_config.TextColumn("Equipe",help="Nome da Equipe"),
-        # "TeamColor": st.column_config.TextColumn("Cor Equipe",help="Cor adotada pela equipe"),
+        "TeamColor": st.column_config.TextColumn("Cor Equipe",help="Cor adotada pela equipe"),
         "predict":st.column_config.NumberColumn("Probabilidade",help="Probabilidade de ser campeão na temporada", format='percent'),
     }
     
@@ -83,6 +81,7 @@ df.to_csv("df.csv")
 df_pivot = df.pivot_table(index='YearRound', columns='FullName', values='predict').reset_index()
 
 colors = get_colors(df)
+
 
 st.line_chart(df_pivot,
               x='YearRound',
