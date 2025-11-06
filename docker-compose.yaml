@@ -1,0 +1,11 @@
+services:
+
+  etl:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    container_name: etl
+    volumes:
+      - ./data:/app/data
