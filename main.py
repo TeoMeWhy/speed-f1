@@ -53,7 +53,6 @@ def run_gold(spark):
     make_prediction_champ("f1_champion", '2000-01-01','2026-01-01', spark)
     
     print("Camada gold criada.")
-    
 
 
 def main():
